@@ -1,22 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Client;
 
-import Client.controllers.LoginController;
-import Client.views.LoginView;
+import Client.controllers.GuestLoginController;
+import Client.manager.ClientSocketManager;
+import Client.views.GuestLoginView;
 
-
-
-/**
- *
- * @author ADMIN
- */
 public class MainClient {
     public static void main(String[] args) {
-        LoginView loginView = new LoginView();
-        LoginController controller = new LoginController(loginView);
-        loginView.setVisible(true);
+        try {
+            // Khởi tạo client socket và kết nối đến server
+            ClientSocket clientSocket = new ClientSocket("localhost", 12345);
+
+            // Tạo một ClientSocketManager mới cho mỗi instance của MainClient
+            ClientSocketManager clientSocketManager = new ClientSocketManager(clientSocket);
+            clientSocketManager.startReceivingMessages();
+
+            // Khởi tạo giao diện đăng nhập
+            GuestLoginView guestLoginView = new GuestLoginView();
+            new GuestLoginController(guestLoginView, clientSocketManager, clientSocket);
+
+            // Hiển thị giao diện đăng nhập
+            guestLoginView.setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -8,12 +8,12 @@ import java.io.Serializable;
 
 public class User implements Serializable {
     private String userId;
-    private String username;
+    private String nickname;
     private String avatar;
 
-    public User(String userId, String username, String avatar) {
+    public User(String userId, String nickname, String avatar) {
         this.userId = userId;
-        this.username = username;
+        this.nickname = nickname;
         this.avatar = avatar;
     }
 
@@ -25,12 +25,12 @@ public class User implements Serializable {
         this.userId = userId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getAvatar() {

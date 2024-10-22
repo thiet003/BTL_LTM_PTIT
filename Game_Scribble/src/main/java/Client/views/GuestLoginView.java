@@ -1,28 +1,24 @@
 package Client.views;
 
-// View
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
-public class RegistrationView extends JFrame {
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JPasswordField retypePasswordField;
+public class GuestLoginView extends JFrame {
+    private JTextField nicknameField;
     private JComboBox<ImageIcon> avatarComboBox;
-    private JButton registerButton;
-    private JButton loginButton;
+    private JButton playButton;
 
-    public RegistrationView() {
+    public GuestLoginView() {
         initComponents();
     }
 
     private void initComponents() {
-        setTitle("Đăng ký");
-        setSize(600, 600);
-        setLocationRelativeTo(null); // Căn giữa màn hình
+        setTitle("Guess the Sketch");
+        setSize(500, 500);
+        setLocationRelativeTo(null); // Center the window
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridBagLayout());
 
@@ -35,65 +31,48 @@ public class RegistrationView extends JFrame {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        JLabel titleLabel = new JLabel("Đăng ký", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        JLabel titleLabel = new JLabel("Guess the Sketch", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(34, 139, 230)); // Set a nice color for the title
         add(titleLabel, gbc);
 
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Username Label and Field
+        // Nickname Label and Field
         gbc.gridx = 0;
         gbc.gridy = 1;
-        add(new JLabel("Tên đăng nhập:"), gbc);
+        JLabel nicknameLabel = new JLabel("Biệt danh:");
+        nicknameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        add(nicknameLabel, gbc);
 
         gbc.gridx = 1;
-        usernameField = new JTextField(15);
-        add(usernameField, gbc);
-
-        // Password Label and Field
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        add(new JLabel("Mật khẩu:"), gbc);
-
-        gbc.gridx = 1;
-        passwordField = new JPasswordField(15);
-        add(passwordField, gbc);
-
-        // Retype Password Label and Field
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        add(new JLabel("Nhập lại mật khẩu:"), gbc);
-
-        gbc.gridx = 1;
-        retypePasswordField = new JPasswordField(15);
-        add(retypePasswordField, gbc);
+        nicknameField = new JTextField(15);
+        nicknameField.setFont(new Font("Arial", Font.PLAIN, 16));
+        add(nicknameField, gbc);
 
         // Avatar Label and ComboBox
         gbc.gridx = 0;
-        gbc.gridy = 4;
-        add(new JLabel("Ảnh đại diện:"), gbc);
+        gbc.gridy = 2;
+        JLabel avatarLabel = new JLabel("Ảnh đại diện:");
+        avatarLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        add(avatarLabel, gbc);
 
         gbc.gridx = 1;
         avatarComboBox = new JComboBox<>();
         loadAvatars();
         add(avatarComboBox, gbc);
 
-        // Register Button
+        // Play Button
         gbc.gridx = 1;
-        gbc.gridy = 5;
+        gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.CENTER;
-        registerButton = new JButton("Đăng ký");
-        add(registerButton, gbc);
-
-        // Already have an account label and Login Button
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        add(new JLabel("Bạn đã có tài khoản?"), gbc);
-
-        gbc.gridx = 1;
-        loginButton = new JButton("Đăng nhập");
-        add(loginButton, gbc);
+        playButton = new JButton("Chơi");
+        playButton.setFont(new Font("Arial", Font.BOLD, 18));
+        playButton.setBackground(new Color(50, 205, 50));
+        playButton.setForeground(Color.WHITE);
+        playButton.setFocusPainted(false);
+        add(playButton, gbc);
     }
 
     private void loadAvatars() {
@@ -118,28 +97,16 @@ public class RegistrationView extends JFrame {
         }
     }
 
-    public String getUsername() {
-        return usernameField.getText();
-    }
-
-    public String getPassword() {
-        return new String(passwordField.getPassword());
-    }
-
-    public String getRetypePassword() {
-        return new String(retypePasswordField.getPassword());
+    public String getNickname() {
+        return nicknameField.getText();
     }
 
     public ImageIcon getAvatar() {
         return (ImageIcon) avatarComboBox.getSelectedItem();
     }
 
-    public JButton getRegisterButton() {
-        return registerButton;
-    }
-
-    public JButton getLoginButton() {
-        return loginButton;
+    public JButton getPlayButton() {
+        return playButton;
     }
 
     public void addWindowCloseListener(java.awt.event.WindowAdapter adapter) {

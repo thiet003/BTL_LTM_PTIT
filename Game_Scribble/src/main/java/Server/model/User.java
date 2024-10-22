@@ -4,28 +4,40 @@
  */
 package Server.model;
 
-import Server.services.UserService;
-import java.io.IOException;
+import java.io.Serializable;
 
-public class User {
-    private String username;
-    private String password;    
+public class User implements Serializable {
+    private String userId;
+    private String nickname;
     private String avatar;
-    private UserService userService;
 
-    public User(String username, String password) throws IOException {
-        this.username = username;
-        this.password = password;
-        this.userService = new UserService();
+    public User(String userId, String nickname, String avatar) {
+        this.userId = userId;
+        this.nickname = nickname;
+        this.avatar = avatar;
     }
 
-    // Đăng ký người dùng mới
-    public String register() {
-        return userService.registerUser(username, password, avatar);
+    public String getUserId() {
+        return userId;
     }
 
-    // Đăng nhập người dùng
-    public String login() {
-        return userService.authenticateUser(username, password);
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

@@ -25,7 +25,7 @@ public class HomeView extends JFrame {
     }
 
     private void initComponents(String username, String avatarPath) {
-        setTitle("Home");
+        setTitle("Trang chủ");
         setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridBagLayout());
@@ -38,7 +38,7 @@ public class HomeView extends JFrame {
         gbc.gridx = 2;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.NORTHEAST;
-        logoutButton = new JButton("Logout");
+        logoutButton = new JButton("Thoát");
         add(logoutButton, gbc);
 
         gbc.anchor = GridBagConstraints.CENTER;
@@ -62,7 +62,7 @@ public class HomeView extends JFrame {
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.gridheight = 1;
-        usernameLabel = new JLabel("Welcome, " + username + "!");
+        usernameLabel = new JLabel("Xin chào, " + username + "!");
         usernameLabel.setFont(new Font("Arial", Font.BOLD, 24));
         add(usernameLabel, gbc);
 
@@ -71,13 +71,13 @@ public class HomeView extends JFrame {
         gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        createRoomButton = new JButton("Create Room");
+        createRoomButton = new JButton("Tạo phòng");
         createRoomButton.setPreferredSize(new Dimension(200, 50));
         add(createRoomButton, gbc);
 
         // Join Room Button
         gbc.gridy = 4;
-        joinRoomButton = new JButton("Join Room");
+        joinRoomButton = new JButton("Tham gia phòng");
         joinRoomButton.setPreferredSize(new Dimension(200, 50));
         add(joinRoomButton, gbc);
 
@@ -99,7 +99,7 @@ public class HomeView extends JFrame {
         add(chatInputField, gbc);
 
         gbc.gridx = 2;
-        sendChatButton = new JButton("Send");
+        sendChatButton = new JButton("Gửi");
         add(sendChatButton, gbc);
     }
 

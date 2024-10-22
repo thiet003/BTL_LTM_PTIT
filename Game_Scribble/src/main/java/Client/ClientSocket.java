@@ -21,7 +21,7 @@ public class ClientSocket {
     private Socket socket;
     private DataOutputStream out;
     private DataInputStream in;
-    
+
     public ClientSocket(String host, int port) {
         try {
             this.socket = new Socket(host, port);
@@ -34,6 +34,7 @@ public class ClientSocket {
 
     public void sendMessage(String message) throws IOException {
         out.writeUTF(message);
+        out.flush();
     }
 
     public String receiveMessage() throws IOException {
@@ -73,5 +74,34 @@ public class ClientSocket {
     public void setIn(DataInputStream in) {
         this.in = in;
     }
-    
+    public void closeCon() throws IOException {
+        this.socket.close();
+        this.in.close();
+        this.out.close();
+    }
+
+    public String sendCreateRoom(int playerLimit, int targetScore) {
+        try {
+            // Tạo thông điệp yêu cầu tạo phòng
+            String createRoomRequest = "CREATE_ROOM:" + playerLimit + ":" + targetScore;
+            sendMessage(createRoomRequest); // Gửi yêu cầu tạo phòng
+
+            // Nhận phản hồi từ server - ID của phòng
+            String response = receiveMessage();
+            System.out.println(response);
+
+            if (response.startsWith("ROOM_ID:")) {
+                // Server trả về ID phòng dưới dạng "ROOM_ID:<id>"
+                String roomId = response.substring(8); // Lấy phần ID từ thông báo
+                return roomId; // Trả về mã phòng
+            } else {
+                System.out.println("Tạo phòng thất bại: " + response);
+                return null; // Trả về null nếu không có phản hồi hợp lệ
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }
