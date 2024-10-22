@@ -3,12 +3,17 @@ package Client.controllers;
 import Client.ClientSocket;
 import Client.manager.ClientSocketManager;
 import Client.manager.MessageListener;
+import Client.models.User;
+import Client.sessions.UserSession;
 import Client.views.JoinRoomView;
 import Client.views.RoomView;
+import Server.model.Player;
 
 import javax.swing.SwingUtilities;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class JoinRoomController implements MessageListener {
     private JoinRoomView joinRoomView;
@@ -39,7 +44,8 @@ public class JoinRoomController implements MessageListener {
             String roomId = joinRoomView.getRoomIdField().getText();
             try {
                 // Gửi yêu cầu tham gia phòng
-                clientSocket.sendMessage("JOIN_ROOM:" + roomId);
+                User user = UserSession.getInstance().getUser();
+                clientSocket.sendMessage("JOIN_ROOM:" + roomId+":"+user.getUserId()+":"+user.getNickname()+":"+user.getAvatar());
                 System.out.println("Sent JOIN_ROOM request for room ID: " + roomId);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -51,27 +57,35 @@ public class JoinRoomController implements MessageListener {
     @Override
     public void onMessageReceived(String message) {
         SwingUtilities.invokeLater(() -> {
-            processMessage(message);
+            try {
+                processMessage(message);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
     // Phân tích và xử lý tin nhắn từ server
-    private void processMessage(String message) {
+    private void processMessage(String message) throws IOException {
         if (message.startsWith("JOIN_ROOM_SUCCESS:")) {
-            String roomId = message.substring(18); // Lấy roomId từ phản hồi server
+            String[] parts = message.split(":");
+            String roomId = parts[1]; // Lấy roomId từ phản hồi server
             System.out.println("Join Room successful, Room ID: " + roomId);
-            
             // Mở RoomView khi vào phòng thành công
+            ArrayList<Player> players = new ArrayList<>();
+            for (int i = 2; i < parts.length; i++) {
+                String[] playerInfo = parts[i].split(",");
+                players.add(new Player(playerInfo[0], playerInfo[1], playerInfo[2], Integer.parseInt(playerInfo[3])));
+            }
             RoomView roomView = new RoomView(roomId, false); // false: không phải chủ trì
-            new RoomController(roomView, clientSocketManager, clientSocket, false); // false: không phải chủ trì
+            new RoomController(roomView, clientSocketManager, clientSocket, false, players); // false: không phải chủ trì
+            roomView.updatePlayersList(players);
+            clientSocket.sendMessage("ADD_PLAYER_TO_ROOM:"+roomId);
             roomView.setVisible(true);
             joinRoomView.dispose(); // Đóng giao diện join room
 
             // Hủy lắng nghe sau khi tham gia thành công
             stopListening();
-        } else if (message.startsWith("JOIN_ROOM_FAIL")) {
-            System.out.println("Join Room failed: " + message);
-            // Có thể thêm thông báo lỗi cho người dùng tại đây
         }
     }
 }

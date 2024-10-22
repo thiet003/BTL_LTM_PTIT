@@ -8,10 +8,11 @@ public class GameRoom {
     private final ArrayList<Socket> clientSockets;
     private int maxPlayers;
     private int targetScore;
-
+    private final ArrayList<Player> listPlayer;
     public GameRoom(int maxPlayers, String roomId, int targetScore) {
         this.targetScore = targetScore;
         this.clientSockets = new ArrayList<>();
+        this.listPlayer = new ArrayList<>();
         this.roomId = roomId;
         this.maxPlayers = maxPlayers;
     }
@@ -40,5 +41,9 @@ public class GameRoom {
 
     public boolean isFull() {
         return clientSockets.size() >= maxPlayers;
+    }
+
+    public ArrayList<Player> getListPlayer() {
+        return listPlayer;
     }
 }

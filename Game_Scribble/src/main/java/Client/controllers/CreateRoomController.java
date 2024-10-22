@@ -3,13 +3,17 @@ package Client.controllers;
 import Client.ClientSocket;
 import Client.manager.ClientSocketManager;
 import Client.manager.MessageListener;
+import Client.models.User;
+import Client.sessions.UserSession;
 import Client.views.CreateRoomView;
 import Client.views.RoomView;
+import Server.model.Player;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class CreateRoomController implements MessageListener {
     private CreateRoomView createRoomView;
@@ -49,7 +53,8 @@ public class CreateRoomController implements MessageListener {
             int targetScore = (int) createRoomView.getTargetScoreComboBox().getSelectedItem();
             try {
                 // Tạo thông điệp yêu cầu tạo phòng
-                String createRoomRequest = "CREATE_ROOM:" + playerLimit + ":" + targetScore;
+                User user = UserSession.getInstance().getUser();
+                String createRoomRequest = "CREATE_ROOM:" + playerLimit + ":" + targetScore + ":" + user.getUserId()+":"+user.getNickname()+":"+user.getAvatar();
                 clientSocket.sendMessage(createRoomRequest); // Gửi yêu cầu tạo phòng
                 System.out.println("Sent request: " + createRoomRequest);
             } catch (IOException ex) {
@@ -70,12 +75,20 @@ public class CreateRoomController implements MessageListener {
     // Phân tích và xử lý tin nhắn
     private void processMessage(String message) {
         if (message.startsWith("ROOMID:")) {
-            String roomId = message.substring(7);
+            String[] parts = message.split(":");
+            String roomId = parts[1]; // Lấy roomId từ phản hồi server
             System.out.println("Phòng tạo thành công với mã ID: " + roomId);
-
+            ArrayList<Player> players = new ArrayList<>();
+            for(int i = 2; i < parts.length; i++){
+                if(parts[i].isEmpty()) continue;
+                String[] playerInfo = parts[i].split(",");
+                Player player = new Player(playerInfo[0], playerInfo[1], playerInfo[2], Integer.parseInt(playerInfo[3]));
+                players.add(player);
+            }
             // Chuyển đến giao diện RoomView
             RoomView roomView = new RoomView(roomId, true);
-            new RoomController(roomView, clientSocketManager, clientSocket, true);
+            new RoomController(roomView, clientSocketManager, clientSocket, true, players);
+            roomView.updatePlayersList(players);
             roomView.setVisible(true);
             createRoomView.dispose(); // Đóng giao diện tạo phòng
         } else {
