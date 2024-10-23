@@ -12,18 +12,17 @@ import java.util.ArrayList;
 
 public class RoomView extends JFrame {
     private JLabel roomIdLabel;
-//    private JList<String> playersList;
     private JTextArea chatArea;
     private JTextField chatInputField;
     private JTextField guessInputField; // Ô nhập để đoán từ
     private JButton sendChatButton;
     private JButton sendGuessButton; // Nút gửi đoán từ
     private JButton startGameButton; // Chỉ hiện khi người chơi là chủ phòng
-    private DrawingPanel drawingPanel; // Vùng trắng để vẽ
-    private Color currentColor = Color.BLACK; // Màu vẽ hiện tại
-    private boolean isEraserMode = false; // Trạng thái tẩy
     private JList<Player> playersList;
     private DefaultListModel<Player> playersListModel;
+    private Color currentColor = Color.BLACK; // Màu vẽ hiện tại
+    private DrawingPanel drawingPanel; // Vùng trắng để vẽ
+    private boolean isEraserMode = false; // Trạng thái tẩy
 
     public RoomView(String roomId, boolean isHost) {
         setTitle("Phòng chơi: " + roomId);
@@ -102,7 +101,7 @@ public class RoomView extends JFrame {
         JPanel toolsPanel = new JPanel();
         toolsPanel.setLayout(new FlowLayout());
 
-        JButton colorPickerButton = new JButton("Chọn màu");
+            JButton colorPickerButton = new JButton("Chọn màu");
         colorPickerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -146,46 +145,6 @@ public class RoomView extends JFrame {
         }
     }
 
-    // Phương thức thêm tin nhắn vào khu vực chat
-    public void appendChatMessage(String message) {
-        chatArea.append(message + "\n");
-    }
-
-    // Phương thức bắt đầu trò chơi
-    public void startGame() {
-        drawingPanel.setVisible(true);
-    }
-
-    // Getters cho các thành phần
-    public JTextField getChatInputField() {
-        return chatInputField;
-    }
-
-    public JButton getSendChatButton() {
-        return sendChatButton;
-    }
-
-    public JButton getSendGuessButton() {
-        return sendGuessButton;
-    }
-
-    public JTextField getGuessInputField() {
-        return guessInputField;
-    }
-
-    public JButton getStartGameButton() {
-        return startGameButton;
-    }
-
-    public JLabel getRoomIdLabel() {
-        return roomIdLabel;
-    }
-
-    public DrawingPanel getDrawingPanel() {
-        return drawingPanel;
-    }
-
-    // Lớp con cho vùng vẽ
     public class DrawingPanel extends JPanel {
         private DrawingListener drawingListener;
         private int prevX, prevY;
@@ -226,6 +185,41 @@ public class RoomView extends JFrame {
         }
     }
 
+
+    // Phương thức thêm tin nhắn vào khu vực chat
+    public void appendChatMessage(String message) {
+        chatArea.append(message + "\n");
+    }
+
+    public DrawingPanel getDrawingPanel() {
+        return drawingPanel;
+    }
+
+    // Getters cho các thành phần
+    public JTextField getChatInputField() {
+        return chatInputField;
+    }
+
+    public JButton getSendChatButton() {
+        return sendChatButton;
+    }
+
+    public JButton getSendGuessButton() {
+        return sendGuessButton;
+    }
+
+    public JTextField getGuessInputField() {
+        return guessInputField;
+    }
+
+    public JButton getStartGameButton() {
+        return startGameButton;
+    }
+
+    public JLabel getRoomIdLabel() {
+        return roomIdLabel;
+    }
+
     // Đăng ký các listener
     public void addSendChatListener(ActionListener listener) {
         sendChatButton.addActionListener(listener);
@@ -241,7 +235,11 @@ public class RoomView extends JFrame {
         }
     }
 
-    // Interface cho listener sự kiện vẽ
+    // Phương thức bắt đầu trò chơi
+    public void startGame() {
+        drawingPanel.setVisible(true);
+    }
+
     public interface DrawingListener {
         void onDraw(int x1, int y1, int x2, int y2, int colorValue);
     }

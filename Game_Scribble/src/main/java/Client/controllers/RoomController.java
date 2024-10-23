@@ -38,7 +38,6 @@ public class RoomController implements MessageListener {
             this.roomView.getStartGameButton().addActionListener(new StartGameListener());
         }
 
-        // Đăng ký sự kiện vẽ trên DrawingPanel
         this.roomView.getDrawingPanel().addDrawingListener(new DrawingListener());
     }
 

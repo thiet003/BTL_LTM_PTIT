@@ -126,6 +126,7 @@ public class HomeView extends JFrame {
     public JTextArea getChatArea() {
         return chatArea;
     }
+
     public void addWindowCloseListener(java.awt.event.WindowAdapter adapter) {
         addWindowListener(adapter);
     }

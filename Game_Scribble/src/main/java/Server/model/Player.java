@@ -1,7 +1,7 @@
 package Server.model;
 
 public class Player {
-    private  String playerId;
+    private String playerId;
     private String nickname;
     private String avatar;
     private int score;
