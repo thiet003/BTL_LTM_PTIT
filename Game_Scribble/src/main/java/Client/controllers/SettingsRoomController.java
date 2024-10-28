@@ -3,25 +3,24 @@ package Client.controllers;
 import Client.ClientSocket;
 import Client.manager.ClientSocketManager;
 import Client.manager.MessageListener;
-import Client.models.User;
+import Server.model.User;
 import Client.sessions.UserSession;
-import Client.views.CreateRoomView;
+import Client.views.SettingsRoomView;
 import Client.views.RoomView;
 import Server.model.Player;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class CreateRoomController implements MessageListener {
-    private CreateRoomView createRoomView;
+public class SettingsRoomController implements MessageListener {
+    private SettingsRoomView settingsRoomView;
     private ClientSocketManager clientSocketManager;
     private ClientSocket clientSocket;
 
-    public CreateRoomController(CreateRoomView createRoomView, ClientSocketManager clientSocketManager, ClientSocket clientSocket) {
-        this.createRoomView = createRoomView;
+    public SettingsRoomController(SettingsRoomView settingsRoomView, ClientSocketManager clientSocketManager, ClientSocket clientSocket) {
+        this.settingsRoomView = settingsRoomView;
         this.clientSocketManager = clientSocketManager;
         this.clientSocket = clientSocket;
 
@@ -29,10 +28,10 @@ public class CreateRoomController implements MessageListener {
         clientSocketManager.addMessageListener(this);
 
         // Thêm sự kiện khi nhấn nút "Create Room"
-        this.createRoomView.getCreateRoomButton().addActionListener(new CreateRoomListener());
+        this.settingsRoomView.getCreateRoomButton().addActionListener(new CreateRoomListener());
 
         // Xử lý sự kiện khi cửa sổ bị đóng
-        this.createRoomView.addWindowListener(new java.awt.event.WindowAdapter() {
+        this.settingsRoomView.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
                 stopListening(); // Hủy lắng nghe khi cửa sổ đóng
@@ -49,8 +48,8 @@ public class CreateRoomController implements MessageListener {
     private class CreateRoomListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int playerLimit = (int) createRoomView.getPlayerLimitComboBox().getSelectedItem();
-            int targetScore = (int) createRoomView.getTargetScoreComboBox().getSelectedItem();
+            int playerLimit = settingsRoomView.getSelectedPlayerLimit();
+            int targetScore = settingsRoomView.getSelectedTargetScore();
             try {
                 // Tạo thông điệp yêu cầu tạo phòng
                 User user = UserSession.getInstance().getUser();
@@ -87,12 +86,11 @@ public class CreateRoomController implements MessageListener {
             }
             // Chuyển đến giao diện RoomView
             RoomView roomView = new RoomView(roomId, true);
-            new RoomController(roomView, clientSocketManager, clientSocket, true, players);
+            RoomController controller = new RoomController(roomView, clientSocketManager, clientSocket, true, players);
             roomView.updatePlayersList(players);
+            controller.updatePlayersList(players);
             roomView.setVisible(true);
-            createRoomView.dispose(); // Đóng giao diện tạo phòng
-        } else {
-            System.out.println("Tạo phòng thất bại: " + message);
+            settingsRoomView.dispose(); // Đóng giao diện tạo phòng
         }
     }
 }

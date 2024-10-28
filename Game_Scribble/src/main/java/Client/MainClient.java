@@ -10,7 +10,6 @@ public class MainClient {
             // Khởi tạo client socket và kết nối đến server
             ClientSocket clientSocket = new ClientSocket("localhost", 12345);
 
-
             // Tạo một ClientSocketManager mới cho mỗi instance của MainClient
             ClientSocketManager clientSocketManager = new ClientSocketManager(clientSocket);
             clientSocketManager.startReceivingMessages();

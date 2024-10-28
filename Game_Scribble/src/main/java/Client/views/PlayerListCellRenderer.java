@@ -5,7 +5,6 @@ import Server.model.Player;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.List;
 
 public class PlayerListCellRenderer extends JPanel implements ListCellRenderer<Player> {
     private JLabel avatarLabel;

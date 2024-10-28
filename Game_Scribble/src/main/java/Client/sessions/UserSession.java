@@ -4,7 +4,7 @@
  */
 package Client.sessions;
 
-import Client.models.User;
+import Server.model.User;
 
 /**
  *

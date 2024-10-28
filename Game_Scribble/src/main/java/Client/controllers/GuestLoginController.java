@@ -3,7 +3,7 @@ package Client.controllers;
 import Client.ClientSocket;
 import Client.manager.ClientSocketManager;
 import Client.manager.MessageListener;
-import Client.models.User;
+import Server.model.User;
 import Client.sessions.UserSession;
 import Client.views.GuestLoginView;
 import Client.views.HomeView;
