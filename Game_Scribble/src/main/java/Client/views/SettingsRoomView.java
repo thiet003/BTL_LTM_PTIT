@@ -59,7 +59,7 @@ public class SettingsRoomView extends JFrame {
         playerLimitComboBox.setPreferredSize(new Dimension(100, 25)); // Giới hạn chiều cao
 
         JLabel targetScoreLabel = new JLabel("Target point:");
-        targetScoreComboBox = new JComboBox<>(new Integer[]{80, 90, 100, 120});
+        targetScoreComboBox = new JComboBox<>(new Integer[]{20, 90, 100, 120});
         targetScoreComboBox.setPreferredSize(new Dimension(100, 25)); // Giới hạn chiều cao
 
         JLabel isPrivateLabel = new JLabel("Is Private:");

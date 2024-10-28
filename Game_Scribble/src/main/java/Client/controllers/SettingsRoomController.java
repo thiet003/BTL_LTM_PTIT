@@ -86,12 +86,11 @@ public class SettingsRoomController implements MessageListener {
             }
             // Chuyển đến giao diện RoomView
             RoomView roomView = new RoomView(roomId, true);
-            new RoomController(roomView, clientSocketManager, clientSocket, true, players);
+            RoomController controller = new RoomController(roomView, clientSocketManager, clientSocket, true, players);
             roomView.updatePlayersList(players);
+            controller.updatePlayersList(players);
             roomView.setVisible(true);
             settingsRoomView.dispose(); // Đóng giao diện tạo phòng
-        } else {
-            System.out.println("Tạo phòng thất bại: " + message);
         }
     }
 }

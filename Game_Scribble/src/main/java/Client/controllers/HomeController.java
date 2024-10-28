@@ -220,14 +220,26 @@ public class HomeController implements MessageListener {
                 players.add(new Player(playerInfo[0], playerInfo[1], playerInfo[2], Integer.parseInt(playerInfo[3])));
             }
             RoomView roomView = new RoomView(roomId, false); // false: không phải chủ trì
-            new RoomController(roomView, clientSocketManager, clientSocket, false, players); // false: không phải chủ trì
+            RoomController controller = new RoomController(roomView, clientSocketManager, clientSocket, false, players); // false: không phải chủ trì
             roomView.updatePlayersList(players);
+            controller.updatePlayersList(players);
             clientSocket.sendMessage("ADD_PLAYER_TO_ROOM:"+roomId);
             roomView.setVisible(true);
             homeView.dispose(); // Đóng giao diện join room
-
             // Hủy lắng nghe sau khi tham gia thành công
             stopListening();
+        }
+        else if (message.startsWith("ROOM_NOT_FOUND")) {
+            JOptionPane.showMessageDialog(homeView, "Không tìm thấy phòng với ID này!");
+        }
+        else if(message.startsWith("ROOM_IS_FULL")){
+            JOptionPane.showMessageDialog(homeView, "Phòng đã đầy!");
+        }
+        else if(message.startsWith("ROOM_IS_PLAYING")){
+            JOptionPane.showMessageDialog(homeView, "Phòng đang chơi!");
+        }
+        else if(message.startsWith("ROOM_IS_ENDING")){
+            JOptionPane.showMessageDialog(homeView, "Phòng đã kết thúc!");
         }
     }
 }

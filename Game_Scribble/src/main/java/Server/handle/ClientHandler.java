@@ -1,6 +1,7 @@
 package Server.handle;
 
 import Server.model.GameRoom;
+import Server.model.Phase;
 import Server.model.Player;
 
 import java.io.*;
@@ -77,21 +78,33 @@ public class ClientHandler implements Runnable {
                     GameRoom room = findRoomById(roomId);
                     if (room != null) {
                         if (!room.isFull()) {
-                            room.addClient(clientSocket);
-                            Player player = new Player(userId, nickname, avatar, 0);
-                            room.getListPlayer().add(player);
-                            String rq = "JOIN_ROOM_SUCCESS:" + roomId;
-                            for (Player p : room.getListPlayer()) {
-                                rq +=":"+ p.getPlayerId()+","+p.getNickname()+","+p.getAvatar()+","+p.getScore();
+                            if(room.getStatus().equals("PLAYING")){
+                                out.writeUTF("ROOM_IS_PLAYING");
+                                out.flush();
+                                continue;
                             }
-                            out.writeUTF(rq);
-                            out.flush();
+                            else if(room.getStatus().equals("ENDING")){
+                                out.writeUTF("ROOM_IS_ENDING");
+                                out.flush();
+                                continue;
+                            }
+                            else {
+                                room.addClient(clientSocket);
+                                Player player = new Player(userId, nickname, avatar, 0);
+                                room.getListPlayer().add(player);
+                                String rq = "JOIN_ROOM_SUCCESS:" + roomId;
+                                for (Player p : room.getListPlayer()) {
+                                    rq +=":"+ p.getPlayerId()+","+p.getNickname()+","+p.getAvatar()+","+p.getScore();
+                                }
+                                out.writeUTF(rq);
+                                out.flush();
+                            }
                         } else {
-                            out.writeUTF("JOIN_ROOM_FAIL:Room is full");
+                            out.writeUTF("ROOM_IS_FULL");
                             out.flush();
                         }
                     } else {
-                        out.writeUTF("JOIN_ROOM_FAIL:ROOM_NOT_FOUND");
+                        out.writeUTF("ROOM_NOT_FOUND");
                         out.flush();
                     }
                 } else if (command[0].equals("CHAT_ROOM")) {
@@ -121,6 +134,7 @@ public class ClientHandler implements Runnable {
                     String roomId = command[1];
                     GameRoom room = findRoomById(roomId);
                     if (room != null) {
+                        room.setStatus("PLAYING");
                         broadcastMessageToRoom(room, "START_GAME");
                     }
                 }
@@ -128,11 +142,120 @@ public class ClientHandler implements Runnable {
                     String roomId = command[1];
                     GameRoom room = findRoomById(roomId);
                     if (room != null) {
-                        String rq = "ADD_PLAYER_TO_ROOM:" + roomId;
-                        for (Player p : room.getListPlayer()) {
-                            rq +=":"+ p.getPlayerId()+","+p.getNickname()+","+p.getAvatar()+","+p.getScore();
+                            String rq = "ADD_PLAYER_TO_ROOM:" + roomId;
+                            for (Player p : room.getListPlayer()) {
+                                rq +=":"+ p.getPlayerId()+","+p.getNickname()+","+p.getAvatar()+","+p.getScore();
+                            }
+                            broadcastMessageToRoom(room, rq);
+                    }
+                }
+                else if(command[0].equals("LEAVE_ROOM"))
+                {
+                    String roomId = command[1];
+                    String nickname = command[2];
+                    String host = command[3];
+                    GameRoom room = findRoomById(roomId);
+                    if(room!=null){
+                        if(host.equals("true"))
+                        {
+                            room.setStatus("ENDING");
+                            broadcastMessage("DELETE_ROOM:"+roomId);
                         }
-                        broadcastMessageToRoom(room, rq);
+                        else {
+                            Player player = findPlayerByNickname(nickname,room);
+                            room.getListPlayer().remove(player);
+                            room.removeClient(clientSocket);
+                            String rq = "UPDATE_PLAYER:" + roomId;
+                            for (Player p : room.getListPlayer()) {
+                                rq +=":"+ p.getPlayerId()+","+p.getNickname()+","+p.getAvatar()+","+p.getScore();
+                            }
+                            broadcastMessageToRoom(room, rq);
+                        }
+                    }
+                    clientSocket.close();
+
+                }
+                else if(command[0].equals("NOTIFY")){
+                    String roomID = command[1];
+                    String notify = command[2];
+                    String rq = "NOTIFY:"+notify;
+                    GameRoom room = findRoomById(roomID);
+                    if(room!=null){
+                        broadcastMessageToRoom(room,rq);
+                    }
+                }
+                else if(command[0].equals("CHOOSE_PHASE")){
+                    String roomID = command[1];
+                    String nickname = command[2];
+                    String currentPlayerId = command[3];
+                    String rq = "CHOOSE_PHASE:"+roomID+":"+nickname+":"+currentPlayerId;
+                    GameRoom room = findRoomById(roomID);
+                    if(room!=null){
+                        broadcastMessageToRoom(room,rq);
+                    }
+                }
+                else if(command[0].equals("DRAW_PHASE")){
+                    String roomID = command[1];
+                    String nickname = command[2];
+                    String word = command[3];
+                    String currentPlayerId = command[4];
+                    String phaseId = generateRoomId();
+                    GameRoom room = findRoomById(roomID);
+                    if(room!=null){
+                        Phase phase = new Phase(phaseId,roomID,nickname,word);
+                        room.getListPhase().add(phase);
+                        String rq = "DRAW_PHASE:"+roomID+":"+nickname+":"+word+":"+currentPlayerId+":"+phaseId;
+                        broadcastMessageToRoom(room,rq);
+                    }
+                }
+                else if(command[0].equals("GUESS"))
+                {
+                    String roomID = command[1];
+                    String phaseID = command[2];
+                    String myNickname = command[3];
+                    String word = command[4];
+                    String currentNickname = command[5];
+                    GameRoom room = findRoomById(roomID);
+                    if(room!=null){
+
+                        Phase phase = findPhaseById(phaseID,room);
+                        if(phase!=null){
+                            if(phase.getWord().equals(word)){
+                                Player myPlayer = findPlayerByNickname(myNickname,room);
+                                Player currentPlayer = findPlayerByNickname(currentNickname,room);
+                                int count = phase.getCountCorrectPlayer();
+                                myPlayer.addScore(10-count);
+                                currentPlayer.addScore(5);
+                                count++;
+                                int targetScore = room.getTargetScore();
+                                String rq = "GUESS:TRUE:"+myNickname+":"+word+":"+count+":"+targetScore;
+                                phase.setCountCorrectPlayer(count);
+                                for (Player p : room.getListPlayer()) {
+                                    rq +=":"+ p.getPlayerId()+","+p.getNickname()+","+p.getAvatar()+","+p.getScore();
+                                }
+                                broadcastMessageToRoom(room,rq);
+                            }
+                            else{
+                                String rq = "GUESS:FALSE:"+myNickname+":"+word;
+                                broadcastMessageToRoom(room,rq);
+                            }
+                        }
+                    }
+                }
+                else if(command[0].equals("CLEAR_PANEL"))
+                {
+                    String roomID = command[1];
+                    GameRoom room = findRoomById(roomID);
+                    if(room!=null){
+                        broadcastMessageToRoom(room,"CLEAR_PANEL:"+roomID);
+                    }
+                }
+                else if (command[0].equals("END_GAME")) {
+                    String roomId = command[1];
+                    GameRoom room = findRoomById(roomId);
+                    if (room != null) {
+                        room.setStatus("ENDING");
+                        broadcastMessageToRoom(room, "END_GAME:"+roomId);
                     }
                 }
             }
@@ -180,7 +303,16 @@ public class ClientHandler implements Runnable {
         }
         return null;
     }
-
+    private Phase findPhaseById(String phaseId, GameRoom rooms) {
+        {
+            for (Phase phase : rooms.getListPhase()) {
+                if (phase.getIdPhase().equals(phaseId)) {
+                    return phase;
+                }
+            }
+            return null;
+        }
+    }
     private String generateRoomId() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder roomId = new StringBuilder(10);
@@ -202,7 +334,14 @@ public class ClientHandler implements Runnable {
             }
         }
     }
-
+    private Player findPlayerByNickname(String nickname, GameRoom room) {
+        for (Player player : room.getListPlayer()) {
+            if (player.getNickname().equals(nickname)) {
+                return player;
+            }
+        }
+        return null;
+    }
     private String generateUserId() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder userId = new StringBuilder(10);
